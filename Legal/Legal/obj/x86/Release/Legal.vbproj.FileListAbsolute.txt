@@ -1,0 +1,11 @@
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\bin\Release\Legal.exe
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\bin\Release\Legal.pdb
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\bin\Release\Legal.xml
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\obj\x86\Release\Legal.Resources.resources
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\obj\x86\Release\Legal.vbproj.GenerateResource.Cache
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\obj\x86\Release\Legal.exe
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\obj\x86\Release\Legal.xml
+C:\Users\yoshi\AppData\Local\Temporary Projects\Legal\obj\x86\Release\Legal.pdb
+C:\Users\yoshi\documents\visual studio 2010\Projects\Legal\Legal\obj\x86\Release\Legal.exe
+C:\Users\yoshi\documents\visual studio 2010\Projects\Legal\Legal\obj\x86\Release\Legal.xml
+C:\Users\yoshi\documents\visual studio 2010\Projects\Legal\Legal\obj\x86\Release\Legal.pdb
