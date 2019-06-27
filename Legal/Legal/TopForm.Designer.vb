@@ -26,7 +26,7 @@ Partial Class TopForm
         Me.dgvHol = New System.Windows.Forms.DataGridView()
         Me.btnPrint = New System.Windows.Forms.Button()
         Me.dateBox = New ymdBox.ymdBox()
-        Me.HolBox = New System.Windows.Forms.TextBox()
+        Me.holBox = New System.Windows.Forms.TextBox()
         Me.btnRegist = New System.Windows.Forms.Button()
         Me.btnDelete = New System.Windows.Forms.Button()
         Me.btnDeleteYear = New System.Windows.Forms.Button()
@@ -53,7 +53,7 @@ Partial Class TopForm
         Me.dgvHol.Location = New System.Drawing.Point(102, 17)
         Me.dgvHol.Name = "dgvHol"
         Me.dgvHol.RowTemplate.Height = 21
-        Me.dgvHol.Size = New System.Drawing.Size(180, 430)
+        Me.dgvHol.Size = New System.Drawing.Size(178, 430)
         Me.dgvHol.TabIndex = 1
         '
         'btnPrint
@@ -79,12 +79,13 @@ Partial Class TopForm
         Me.dateBox.TabIndex = 3
         Me.dateBox.textReadOnly = False
         '
-        'HolBox
+        'holBox
         '
-        Me.HolBox.Location = New System.Drawing.Point(302, 264)
-        Me.HolBox.Name = "HolBox"
-        Me.HolBox.Size = New System.Drawing.Size(118, 19)
-        Me.HolBox.TabIndex = 4
+        Me.holBox.ImeMode = System.Windows.Forms.ImeMode.Hiragana
+        Me.holBox.Location = New System.Drawing.Point(302, 264)
+        Me.holBox.Name = "holBox"
+        Me.holBox.Size = New System.Drawing.Size(118, 19)
+        Me.holBox.TabIndex = 4
         '
         'btnRegist
         '
@@ -112,6 +113,7 @@ Partial Class TopForm
         Me.btnDeleteYear.TabIndex = 8
         Me.btnDeleteYear.Text = "年抹消"
         Me.btnDeleteYear.UseVisualStyleBackColor = True
+        Me.btnDeleteYear.Visible = False
         '
         'btnCreateYear
         '
@@ -121,6 +123,7 @@ Partial Class TopForm
         Me.btnCreateYear.TabIndex = 7
         Me.btnCreateYear.Text = "年生成"
         Me.btnCreateYear.UseVisualStyleBackColor = True
+        Me.btnCreateYear.Visible = False
         '
         'PicBox
         '
@@ -140,7 +143,7 @@ Partial Class TopForm
         Me.Controls.Add(Me.btnCreateYear)
         Me.Controls.Add(Me.btnDelete)
         Me.Controls.Add(Me.btnRegist)
-        Me.Controls.Add(Me.HolBox)
+        Me.Controls.Add(Me.holBox)
         Me.Controls.Add(Me.dateBox)
         Me.Controls.Add(Me.btnPrint)
         Me.Controls.Add(Me.dgvHol)
@@ -157,7 +160,7 @@ Partial Class TopForm
     Friend WithEvents dgvHol As System.Windows.Forms.DataGridView
     Friend WithEvents btnPrint As System.Windows.Forms.Button
     Friend WithEvents dateBox As ymdBox.ymdBox
-    Friend WithEvents HolBox As System.Windows.Forms.TextBox
+    Friend WithEvents holBox As System.Windows.Forms.TextBox
     Friend WithEvents btnRegist As System.Windows.Forms.Button
     Friend WithEvents btnDelete As System.Windows.Forms.Button
     Friend WithEvents btnDeleteYear As System.Windows.Forms.Button

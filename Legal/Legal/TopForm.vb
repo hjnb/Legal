@@ -1,4 +1,6 @@
-﻿Public Class TopForm
+﻿Imports System.Data.OleDb
+
+Public Class TopForm
 
     'データベースのパス
     Public dbFilePath As String = My.Application.Info.DirectoryPath & "\Legal.mdb"
@@ -19,6 +21,8 @@
 
         Me.StartPosition = FormStartPosition.CenterScreen
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
+
+        dateBox.canEnterKeyDown = True
     End Sub
 
     ''' <summary>
@@ -55,6 +59,9 @@
 
         'データグリッドビュー初期設定
         initDgvHol()
+
+        '現在年のデータ表示
+        yyBox.Text = DateTime.Now.ToString("yyyy")
     End Sub
 
     ''' <summary>
@@ -106,12 +113,13 @@
             .MultiSelect = False
             .SelectionMode = DataGridViewSelectionMode.FullRowSelect
             .DefaultCellStyle.BackColor = Color.FromKnownColor(KnownColor.Control)
+            .DefaultCellStyle.SelectionBackColor = Color.Black
             .RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             .RowHeadersVisible = False
             .ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing
             .ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
             .ColumnHeadersVisible = False
-            .RowTemplate.Height = 18
+            .RowTemplate.Height = 17
             .BackgroundColor = Color.FromKnownColor(KnownColor.Control)
             .ShowCellToolTips = False
             .EnableHeadersVisualStyles = False
@@ -128,7 +136,34 @@
         'クリア
         dgvHol.Columns.Clear()
 
+        'データ取得、表示
+        Dim cnn As New ADODB.Connection
+        cnn.Open(DB_Legal)
+        Dim rs As New ADODB.Recordset
+        Dim sql As String = "select MD, Hol from Hol where YY = '" & year & "' order by MD"
+        rs.Open(sql, cnn, ADODB.CursorTypeEnum.adOpenForwardOnly, ADODB.LockTypeEnum.adLockReadOnly)
+        Dim da As OleDbDataAdapter = New OleDbDataAdapter()
+        Dim ds As DataSet = New DataSet()
+        da.Fill(ds, rs, "Hol")
+        Dim dt As DataTable = ds.Tables("Hol")
+        dgvHol.DataSource = dt
+        If Not IsNothing(dgvHol.CurrentRow) Then
+            dgvHol.CurrentRow.Selected = False
+        End If
 
+        '幅設定等
+        With dgvHol
+            With .Columns("MD")
+                .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+                .SortMode = DataGridViewColumnSortMode.NotSortable
+                .Width = 75
+            End With
+            With .Columns("Hol")
+                .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+                .SortMode = DataGridViewColumnSortMode.NotSortable
+                .Width = 100
+            End With
+        End With
 
 
 
@@ -140,7 +175,88 @@
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     ''' <remarks></remarks>
-    Private Sub yyBox_SelectedIndexChanged(sender As Object, e As System.EventArgs) Handles yyBox.SelectedIndexChanged
+    Private Sub yyBox_TextChanged(sender As Object, e As System.EventArgs) Handles yyBox.TextChanged
         displayDgvHol(yyBox.Text)
+    End Sub
+
+    ''' <summary>
+    ''' セルマウスクリックイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub dgvHol_CellMouseClick(sender As Object, e As System.Windows.Forms.DataGridViewCellMouseEventArgs) Handles dgvHol.CellMouseClick
+        If e.RowIndex >= 0 Then
+            Dim yy As String = yyBox.Text
+            Dim md As String = Util.checkDBNullValue(dgvHol("MD", e.RowIndex).Value)
+            Dim hol As String = Util.checkDBNullValue(dgvHol("Hol", e.RowIndex).Value)
+
+            'セット
+            dateBox.setADStr(yy & "/" & md)
+            holBox.Text = hol
+
+            'フォーカス
+            dateBox.Focus()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' 日付ボックスエンターキーイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub dateBox_keyDownEnter(sender As Object, e As System.EventArgs) Handles dateBox.keyDownEnterOrDown
+        holBox.Focus()
+    End Sub
+
+    ''' <summary>
+    ''' テキストボックスキーダウン
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub holBox_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles holBox.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            btnRegist.Focus()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' 行登録ボタンクリックイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub btnRegist_Click(sender As System.Object, e As System.EventArgs) Handles btnRegist.Click
+        '入力日付
+        Dim ymd As String = dateBox.getADStr()
+        If ymd = "" Then
+            MsgBox("日付を入力して下さい。", MsgBoxStyle.Exclamation)
+            dateBox.Focus()
+            Return
+        End If
+        '年(YY)
+        Dim yy As String = ymd.Substring(0, 4)
+        'MD
+        Dim md As String = ymd.Substring(5, 5)
+        '内容
+        Dim hol As String = holBox.Text
+        If hol = "" Then
+            MsgBox("祝祭日名を入力して下さい。", MsgBoxStyle.Exclamation)
+            holBox.Focus()
+            Return
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' 行削除ボタンクリックイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub btnDelete_Click(sender As System.Object, e As System.EventArgs) Handles btnDelete.Click
+
     End Sub
 End Class
