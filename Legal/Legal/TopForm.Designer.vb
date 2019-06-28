@@ -24,7 +24,6 @@ Partial Class TopForm
     Private Sub InitializeComponent()
         Me.yyBox = New System.Windows.Forms.ComboBox()
         Me.dgvHol = New System.Windows.Forms.DataGridView()
-        Me.btnPrint = New System.Windows.Forms.Button()
         Me.dateBox = New ymdBox.ymdBox()
         Me.holBox = New System.Windows.Forms.TextBox()
         Me.btnRegist = New System.Windows.Forms.Button()
@@ -55,15 +54,6 @@ Partial Class TopForm
         Me.dgvHol.RowTemplate.Height = 21
         Me.dgvHol.Size = New System.Drawing.Size(178, 430)
         Me.dgvHol.TabIndex = 1
-        '
-        'btnPrint
-        '
-        Me.btnPrint.Location = New System.Drawing.Point(301, 23)
-        Me.btnPrint.Name = "btnPrint"
-        Me.btnPrint.Size = New System.Drawing.Size(58, 21)
-        Me.btnPrint.TabIndex = 2
-        Me.btnPrint.Text = "ﾌﾟﾘﾝﾄ"
-        Me.btnPrint.UseVisualStyleBackColor = True
         '
         'dateBox
         '
@@ -113,7 +103,6 @@ Partial Class TopForm
         Me.btnDeleteYear.TabIndex = 8
         Me.btnDeleteYear.Text = "年抹消"
         Me.btnDeleteYear.UseVisualStyleBackColor = True
-        Me.btnDeleteYear.Visible = False
         '
         'btnCreateYear
         '
@@ -123,7 +112,6 @@ Partial Class TopForm
         Me.btnCreateYear.TabIndex = 7
         Me.btnCreateYear.Text = "年生成"
         Me.btnCreateYear.UseVisualStyleBackColor = True
-        Me.btnCreateYear.Visible = False
         '
         'PicBox
         '
@@ -145,7 +133,6 @@ Partial Class TopForm
         Me.Controls.Add(Me.btnRegist)
         Me.Controls.Add(Me.holBox)
         Me.Controls.Add(Me.dateBox)
-        Me.Controls.Add(Me.btnPrint)
         Me.Controls.Add(Me.dgvHol)
         Me.Controls.Add(Me.yyBox)
         Me.Name = "TopForm"
@@ -158,7 +145,6 @@ Partial Class TopForm
     End Sub
     Friend WithEvents yyBox As System.Windows.Forms.ComboBox
     Friend WithEvents dgvHol As System.Windows.Forms.DataGridView
-    Friend WithEvents btnPrint As System.Windows.Forms.Button
     Friend WithEvents dateBox As ymdBox.ymdBox
     Friend WithEvents holBox As System.Windows.Forms.TextBox
     Friend WithEvents btnRegist As System.Windows.Forms.Button

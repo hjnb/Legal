@@ -3,14 +3,14 @@
 Public Class TopForm
 
     'データベースのパス
-    Public dbFilePath As String = My.Application.Info.DirectoryPath & "\Legal.mdb"
-    Public DB_Legal As String = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & dbFilePath
-
-    'エクセルのパス
-    Public excelFilePass As String = My.Application.Info.DirectoryPath & "\Legal.xls"
+    Private dbFilePath As String = My.Application.Info.DirectoryPath & "\Legal.mdb"
+    Private DB_Legal As String = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & dbFilePath
 
     '画像パス
-    Public topImageFilePath As String = My.Application.Info.DirectoryPath & "\Legal.PNG"
+    Private topImageFilePath As String = My.Application.Info.DirectoryPath & "\Legal.PNG"
+
+    'textChangedイベント制御用
+    Private canTextChanged As Boolean = True
 
     ''' <summary>
     ''' コンストラクタ
@@ -38,12 +38,6 @@ Public Class TopForm
             Me.Close()
             Exit Sub
         End If
-
-        'If Not System.IO.File.Exists(excelFilePass) Then
-        '    MsgBox("エクセルファイルが存在しません。ファイルを配置して下さい。")
-        '    Me.Close()
-        '    Exit Sub
-        'End If
 
         If Not System.IO.File.Exists(topImageFilePath) Then
             MsgBox("トップ画像ファイルが存在しません。ファイルを配置して下さい。")
@@ -129,12 +123,27 @@ Public Class TopForm
     End Sub
 
     ''' <summary>
+    ''' 入力内容クリア
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Sub clearInput()
+        dateBox.clearText()
+        holBox.Text = ""
+    End Sub
+
+    ''' <summary>
     ''' データ表示
     ''' </summary>
     ''' <remarks></remarks>
     Private Sub displayDgvHol(year As String)
         'クリア
         dgvHol.Columns.Clear()
+        clearInput()
+
+        '年テキスト設定
+        canTextChanged = False
+        yyBox.Text = year
+        canTextChanged = True
 
         'データ取得、表示
         Dim cnn As New ADODB.Connection
@@ -164,9 +173,6 @@ Public Class TopForm
                 .Width = 100
             End With
         End With
-
-
-
     End Sub
 
     ''' <summary>
@@ -176,7 +182,9 @@ Public Class TopForm
     ''' <param name="e"></param>
     ''' <remarks></remarks>
     Private Sub yyBox_TextChanged(sender As Object, e As System.EventArgs) Handles yyBox.TextChanged
-        displayDgvHol(yyBox.Text)
+        If canTextChanged Then
+            displayDgvHol(yyBox.Text)
+        End If
     End Sub
 
     ''' <summary>
@@ -248,6 +256,25 @@ Public Class TopForm
             Return
         End If
 
+        '登録
+        Dim cn As New ADODB.Connection()
+        cn.Open(DB_Legal)
+        Dim sql As String = "select * from Hol where YY = '" & yy & "' and MD = '" & md & "'"
+        Dim rs As New ADODB.Recordset
+        rs.Open(sql, cn, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockOptimistic)
+        If rs.RecordCount <= 0 Then
+            rs.AddNew()
+        End If
+        rs.Fields("YY").Value = yy
+        rs.Fields("MD").Value = md
+        rs.Fields("Hol").Value = hol
+        rs.Update()
+        rs.Close()
+        cn.Close()
+
+        '再表示
+        initYYBox()
+        displayDgvHol(yy)
     End Sub
 
     ''' <summary>
@@ -257,6 +284,150 @@ Public Class TopForm
     ''' <param name="e"></param>
     ''' <remarks></remarks>
     Private Sub btnDelete_Click(sender As System.Object, e As System.EventArgs) Handles btnDelete.Click
+        '内容
+        Dim hol As String = holBox.Text
+        '入力日付
+        Dim ymd As String = dateBox.getADStr()
+        If ymd = "" OrElse hol = "" Then
+            MsgBox("データを選択して下さい。", MsgBoxStyle.Exclamation)
+            Return
+        End If
+        '年(YY)
+        Dim yy As String = ymd.Substring(0, 4)
+        'MD
+        Dim md As String = ymd.Substring(5, 5)
 
+        '削除
+        Dim cn As New ADODB.Connection()
+        cn.Open(DB_Legal)
+        Dim sql As String = "select * from Hol where YY = '" & yy & "' and MD = '" & md & "' and Hol = '" & hol & "'"
+        Dim rs As New ADODB.Recordset
+        rs.Open(sql, cn, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockOptimistic)
+        If rs.RecordCount <= 0 Then
+            rs.Close()
+            cn.Close()
+            MsgBox("データを選択して下さい。", MsgBoxStyle.Exclamation)
+            Return
+        End If
+        Dim result As DialogResult = MessageBox.Show("削除してよろしいですか？", "削除", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result = Windows.Forms.DialogResult.Yes Then
+            rs.Delete()
+            rs.Update()
+            rs.Close()
+            cn.Close()
+
+            '再表示
+            initYYBox()
+            displayDgvHol(yy)
+        Else
+            rs.Close()
+            cn.Close()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' 年生成ボタンクリックイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub btnCreateYear_Click(sender As System.Object, e As System.EventArgs) Handles btnCreateYear.Click
+        'コピー元データの年
+        Dim copyYear As String = yyBox.Text
+
+        '入力日付
+        Dim inputYmd As String = dateBox.getADStr()
+
+        If copyYear = "" OrElse inputYmd = "" Then
+            MsgBox("生成の条件が整っていません。", MsgBoxStyle.Exclamation)
+            Return
+        End If
+
+        If dgvHol.Rows.Count <= 0 Then
+            MsgBox(copyYear & "年のデータがありません。", MsgBoxStyle.Exclamation)
+            Return
+        End If
+
+        '作成年
+        Dim createYear As String = inputYmd.Substring(0, 4)
+        If copyYear = createYear Then
+            MsgBox("コピー対象年と作成年が同じです。", MsgBoxStyle.Exclamation)
+            Return
+        End If
+
+        'コピー確認
+        Dim result As DialogResult = MessageBox.Show(copyYear & "年 から " & createYear & "年データを生成してよろしいですか？", "コピー確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result <> Windows.Forms.DialogResult.Yes Then
+            Return
+        End If
+
+        '上書き確認
+        Dim cn As New ADODB.Connection()
+        cn.Open(DB_Legal)
+        Dim sql As String = "select * from Hol where YY = '" & createYear & "'"
+        Dim rs As New ADODB.Recordset
+        rs.Open(sql, cn, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockOptimistic)
+        If rs.RecordCount > 0 Then
+            result = MessageBox.Show(createYear & "年データは既に存在しています。再生成してよろしいですか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            If result = Windows.Forms.DialogResult.Yes Then
+                '既存データ削除
+                Dim cmd As New ADODB.Command()
+                cmd.ActiveConnection = cn
+                cmd.CommandText = "delete from Hol where YY = '" & createYear & "'"
+                cmd.Execute()
+            Else
+                Return
+            End If
+        End If
+        rs.Close()
+
+        '登録
+        rs.Open("Hol", cn, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockOptimistic)
+        For i As Integer = 0 To dgvHol.Rows.Count - 1
+            rs.AddNew()
+            rs.Fields("YY").Value = createYear
+            rs.Fields("MD").Value = Util.checkDBNullValue(dgvHol("MD", i).Value)
+            rs.Fields("Hol").Value = Util.checkDBNullValue(dgvHol("Hol", i).Value)
+        Next
+        rs.Update()
+        rs.Close()
+        cn.Close()
+
+        '再表示
+        initYYBox()
+        displayDgvHol(createYear)
+
+    End Sub
+
+    ''' <summary>
+    ''' 年抹消ボタンクリックイベント
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
+    Private Sub btnDeleteYear_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteYear.Click
+        '削除対象年
+        Dim yy As String = yyBox.Text
+        If yy = "" Then
+            MsgBox("削除対象年を選択して下さい。", MsgBoxStyle.Exclamation)
+            yyBox.Focus()
+            Return
+        End If
+
+        '削除
+        Dim result As DialogResult = MessageBox.Show("表示されている " & yy & "年 のデータを削除してよろしいですか？", "削除", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result = Windows.Forms.DialogResult.Yes Then
+            Dim cn As New ADODB.Connection()
+            cn.Open(DB_Legal)
+            Dim cmd As New ADODB.Command()
+            cmd.ActiveConnection = cn
+            cmd.CommandText = "delete from Hol where YY = '" & yy & "'"
+            cmd.Execute()
+            cn.Close()
+
+            '再表示
+            initYYBox()
+            displayDgvHol("")
+        End If
     End Sub
 End Class
