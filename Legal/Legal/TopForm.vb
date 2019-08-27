@@ -165,7 +165,11 @@ Public Class TopForm
             With .Columns("MD")
                 .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
                 .SortMode = DataGridViewColumnSortMode.NotSortable
-                .Width = 75
+                If dgvHol.Rows.Count >= 26 Then
+                    .Width = 58
+                Else
+                    .Width = 75
+                End If
             End With
             With .Columns("Hol")
                 .DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft

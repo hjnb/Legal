@@ -52,7 +52,7 @@ Partial Class TopForm
         Me.dgvHol.Location = New System.Drawing.Point(102, 17)
         Me.dgvHol.Name = "dgvHol"
         Me.dgvHol.RowTemplate.Height = 21
-        Me.dgvHol.Size = New System.Drawing.Size(178, 430)
+        Me.dgvHol.Size = New System.Drawing.Size(178, 428)
         Me.dgvHol.TabIndex = 1
         '
         'dateBox
@@ -62,7 +62,7 @@ Partial Class TopForm
         Me.dateBox.EraLabelText = "R01"
         Me.dateBox.EraText = ""
         Me.dateBox.Location = New System.Drawing.Point(301, 214)
-        Me.dateBox.MonthLabelText = "06"
+        Me.dateBox.MonthLabelText = "08"
         Me.dateBox.MonthText = ""
         Me.dateBox.Name = "dateBox"
         Me.dateBox.Size = New System.Drawing.Size(145, 34)
